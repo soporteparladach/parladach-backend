@@ -13,6 +13,7 @@ from app.core.errors import (
     validation_error_handler,
     internal_error_handler,
 )
+from app.modules.auth.router import router as auth_router
 
 
 def create_app() -> FastAPI:
@@ -30,6 +31,8 @@ def create_app() -> FastAPI:
     app.add_exception_handler(Exception, internal_error_handler)
 
     app.include_router(health_router)
+    app.include_router(health_router)
+    app.include_router(auth_router)
     return app
 
 
