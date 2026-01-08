@@ -7,6 +7,7 @@ from starlette.status import (
     HTTP_404_NOT_FOUND,
     HTTP_422_UNPROCESSABLE_CONTENT,
     HTTP_500_INTERNAL_SERVER_ERROR,
+    HTTP_409_CONFLICT,
 )
 
 
@@ -20,6 +21,10 @@ class AppError(Exception):
             self.status_code = status_code
 
 
+class ConflictError(AppError):
+    status_code = HTTP_409_CONFLICT
+
+    
 async def app_error_handler(_: Request, exc: AppError) -> JSONResponse:
     return JSONResponse(
         status_code=exc.status_code,
@@ -47,3 +52,4 @@ async def internal_error_handler(_: Request, __) -> JSONResponse:
         status_code=HTTP_500_INTERNAL_SERVER_ERROR,
         content={"error": {"type": "InternalServerError", "message": "Error interno"}},
     )
+
