@@ -18,7 +18,7 @@ class TokenResponse(BaseModel):
     token_type: str = "bearer"
 
 
-class UserPublic(BaseModel):
+class UserPublic(BaseModel):   
     id: int
     email: EmailStr
     role: UserRole

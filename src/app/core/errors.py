@@ -9,6 +9,7 @@ from starlette.status import (
     HTTP_500_INTERNAL_SERVER_ERROR,
     HTTP_409_CONFLICT,
 )
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 
 class AppError(Exception):
@@ -24,7 +25,7 @@ class AppError(Exception):
 class ConflictError(AppError):
     status_code = HTTP_409_CONFLICT
 
-    
+
 async def app_error_handler(_: Request, exc: AppError) -> JSONResponse:
     return JSONResponse(
         status_code=exc.status_code,
@@ -53,3 +54,10 @@ async def internal_error_handler(_: Request, __) -> JSONResponse:
         content={"error": {"type": "InternalServerError", "message": "Error interno"}},
     )
 
+
+async def http_exception_handler(_, exc: StarletteHTTPException) -> JSONResponse:
+    # Mantiene el status_code real (401/403/404/etc)
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"error": {"type": "HTTPException", "message": exc.detail}},
+    )

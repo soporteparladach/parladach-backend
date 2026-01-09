@@ -6,7 +6,9 @@ class Settings(BaseSettings):
     app_name: str = "Parladach API"
     app_env: str = Field(default="local", alias="APP_ENV")
     database_url: str = Field(..., alias="DATABASE_URL")
-    secret_key: str = Field(..., alias="SECRET_KEY")
+    SECRET_KEY: str = Field(...)
+    ACCESS_TOKEN_EXPIRES_MINUTES: int = Field(default=60)
+    JWT_ALGORITHM: str = Field(default="HS256")
 
     model_config = SettingsConfigDict(
         env_file=".env",

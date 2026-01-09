@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
 from app.main import app
 
-client = TestClient(app)
+client = TestClient(app, raise_server_exceptions=False)
 
 
 def test_not_found_returns_json_error():
@@ -9,7 +9,7 @@ def test_not_found_returns_json_error():
     assert r.status_code == 404
     data = r.json()
     assert "error" in data
-    assert data["error"]["type"] == "NotFound"
+    assert data["error"]["type"] == "HTTPException"
 
 
 def test_internal_error_returns_500_json(monkeypatch):
