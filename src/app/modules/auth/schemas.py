@@ -1,5 +1,6 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 from app.core.enums import UserRole, UserStatus
+from datetime import datetime
 
 
 class RegisterRequest(BaseModel):
@@ -19,11 +20,14 @@ class TokenResponse(BaseModel):
 
 
 class UserPublic(BaseModel):   
+    model_config = ConfigDict(use_enum_values=True)
+    
     id: int
     email: EmailStr
     role: UserRole
     status: UserStatus
-
+    created_at: datetime
+    
 
 class RegisterResponse(BaseModel):
     user: UserPublic

@@ -2,10 +2,15 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.modules.auth.schemas import RegisterRequest, RegisterResponse, UserPublic
+from app.modules.auth.schemas import (
+    RegisterRequest, 
+    RegisterResponse, 
+    UserPublic, 
+    LoginRequest, 
+    TokenResponse
+)
 from app.modules.auth.service import AuthService
 from app.models.user import User
-from app.modules.auth.schemas import LoginRequest, TokenResponse, UserPublic
 from app.modules.auth.dependencies import get_current_user
 
 
@@ -28,6 +33,7 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)) -> Registe
             email=user.email,
             role=user.role,
             status=user.status,
+            created_at=user.created_at
         )
     )
 
@@ -45,4 +51,5 @@ def me(user: User = Depends(get_current_user)) -> UserPublic:
         email=user.email,
         role=user.role,
         status=user.status,
+        created_at=user.created_at,
     )
