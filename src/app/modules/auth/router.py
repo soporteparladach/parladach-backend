@@ -11,7 +11,7 @@ from app.modules.auth.schemas import (
 )
 from app.modules.auth.service import AuthService
 from app.models.user import User
-from app.modules.auth.dependencies import get_current_user
+from app.modules.auth.dependencies import get_current_user, require_roles
 
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -53,3 +53,14 @@ def me(user: User = Depends(get_current_user)) -> UserPublic:
         status=user.status,
         created_at=user.created_at,
     )
+
+
+@router.get("/me/admin-test", operation_id="auth_admin_test")
+def admin_only_test(
+    user: User = Depends(require_roles("ADMIN")),
+):
+    return {
+        "message": "Acceso permitido",
+        "user_id": user.id,
+        "role": user.role,
+    }

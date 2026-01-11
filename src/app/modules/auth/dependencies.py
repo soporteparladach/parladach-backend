@@ -51,11 +51,26 @@ def get_current_user(
     return user
 
 
-def require_role(*roles: str) -> Callable:
+
+def require_roles(*roles: str) -> Callable:
+    """
+    Uso:
+        Depends(require_roles("ADMIN"))
+        Depends(require_roles("TEACHER", "ADMIN"))
+    """
     def dependency(user: User = Depends(get_current_user)) -> User:
-        user_role = user.role.value if hasattr(user.role, "value") else str(user.role)
+        user_role = (
+            user.role.value
+            if hasattr(user.role, "value")
+            else str(user.role)
+        )
+
         if user_role not in roles:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No autorizado")
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="No autorizado"
+            )
+
         return user
 
     return dependency
