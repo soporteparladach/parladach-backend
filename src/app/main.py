@@ -14,7 +14,7 @@ from app.core.errors import (
     http_exception_handler
 )
 from app.modules.auth.router import router as auth_router
-
+from app.modules.dashboard.router import router as dashboard_router
 
 def create_app() -> FastAPI:
     configure_logging(settings.app_env)
@@ -31,8 +31,9 @@ def create_app() -> FastAPI:
     app.add_exception_handler(Exception, internal_error_handler)
 
     app.include_router(health_router)
-    app.include_router(health_router)
     app.include_router(auth_router)
+    app.include_router(dashboard_router)
+
     return app
 
 

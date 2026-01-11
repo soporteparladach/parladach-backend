@@ -55,12 +55,3 @@ def me(user: User = Depends(get_current_user)) -> UserPublic:
     )
 
 
-@router.get("/me/admin-test", operation_id="auth_admin_test")
-def admin_only_test(
-    user: User = Depends(require_roles("ADMIN")),
-):
-    return {
-        "message": "Acceso permitido",
-        "user_id": user.id,
-        "role": user.role,
-    }
