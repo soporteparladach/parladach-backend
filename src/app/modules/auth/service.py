@@ -39,16 +39,19 @@ class AuthService:
     def login(self, db: Session, *, email: str, password: str) -> str:
         user = db.execute(select(User).where(User.email == email)).scalar_one_or_none()
 
-        # Respuesta genérica: no filtrar si existe o no
-        if not user or not getattr(user, "password_hash", None) or not verify_password(password, user.password_hash):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Credenciales inválidas",
-            )
-        
-        token = create_access_token(
+        if (
+            not user
+            or not getattr(user, "password_hash", None)
+            or not verify_password(password, user.password_hash)
+        ):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales inválidas")
+
+        # Bloqueo por status (sin filtrar: mantenemos 401)
+        if user.status in {UserStatus.SUSPENDED, UserStatus.DELETED, UserStatus.INACTIVE}:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Credenciales inválidas")
+
+        return create_access_token(
             sub=str(user.id),
             role=str(user.role.value if hasattr(user.role, "value") else user.role),
             status=str(user.status.value if hasattr(user.status, "value") else user.status),
         )
-        return token

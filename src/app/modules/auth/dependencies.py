@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.config.settings import settings
 from app.core.database import get_db
+from app.core.enums import UserStatus
 from app.models.user import User
 
 bearer_scheme = HTTPBearer(auto_error=False)
@@ -18,6 +19,10 @@ bearer_scheme = HTTPBearer(auto_error=False)
 
 def _unauthorized() -> HTTPException:
     return HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="No autenticado")
+
+
+def _forbidden() -> HTTPException:
+    return HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Usuario no habilitado")
 
 
 def get_current_user(
@@ -47,6 +52,9 @@ def get_current_user(
     user = db.execute(select(User).where(User.id == user_id)).scalar_one_or_none()
     if not user:
         raise _unauthorized()
+    
+    if user.status in {UserStatus.SUSPENDED, UserStatus.DELETED, UserStatus.INACTIVE}:
+        raise _forbidden()
 
     return user
 
