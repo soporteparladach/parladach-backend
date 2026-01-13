@@ -11,6 +11,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1] / "src"))
 from app.config.settings import settings
 from app.core.base import Base
 from app.models.user import User  # noqa: F401
+from app.modules.teacher.models import TeacherProfile 
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
