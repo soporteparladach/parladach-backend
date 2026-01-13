@@ -17,6 +17,7 @@ from app.modules.auth.router import router as auth_router
 from app.modules.dashboard.router import router as dashboard_router
 from app.modules.teacher.router import router as teacher_router
 from app.modules.teacher.admin_router import router as teacher_admin_router
+from app.modules.teacher.me_router import router as teacher_me_router
 
 def create_app() -> FastAPI:
     configure_logging(settings.app_env)
@@ -37,6 +38,7 @@ def create_app() -> FastAPI:
     app.include_router(dashboard_router)
     app.include_router(teacher_router)
     app.include_router(teacher_admin_router)
+    app.include_router(teacher_me_router)
 
     return app
 
