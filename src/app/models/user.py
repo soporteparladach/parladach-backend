@@ -9,6 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.base import Base
 from app.core.enums import UserRole, UserStatus
+from sqlalchemy.orm import relationship
 
 
 class User(Base):
@@ -43,4 +44,11 @@ class User(Base):
         DateTime(timezone=True),
         default=datetime.utcnow,
         nullable=False,
+    )
+
+    teacher_profile = relationship(
+        "TeacherProfile",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan",
     )

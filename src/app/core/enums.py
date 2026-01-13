@@ -12,3 +12,12 @@ class UserStatus(str, Enum):
     INACTIVE = "INACTIVE"
     SUSPENDED = "SUSPENDED"
     DELETED = "DELETED"
+
+
+class TeacherProfileStatus(str, Enum):
+    DRAFT = "DRAFT"
+    IN_REVIEW = "IN_REVIEW"
+    APPROVED = "APPROVED"
+    PAUSED = "PAUSED"
+    # Opcional (solo si luego implementas flujo):
+    # REJECTED = "REJECTED"
