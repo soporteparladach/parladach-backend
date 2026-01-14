@@ -86,3 +86,33 @@ class TeacherService:
         db.commit()
         db.refresh(profile)
         return profile
+    
+    def submit_my_profile(self, db: Session, *, user_id: int) -> TeacherProfile:
+        profile = self.get_profile_by_user_id(db, user_id=user_id)
+        if not profile:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Perfil docente no existe",
+            )
+
+        if profile.status != TeacherProfileStatus.DRAFT:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Solo puedes enviar a revisión un perfil en estado DRAFT",
+            )
+
+        bio_ok = bool((profile.bio or "").strip())
+        languages_ok = bool(profile.languages) and len(profile.languages) > 0
+
+        if not bio_ok or not languages_ok:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Para enviar a revisión, completa bio y languages",
+            )
+
+        profile.status = TeacherProfileStatus.IN_REVIEW
+
+        db.add(profile)
+        db.commit()
+        db.refresh(profile)
+        return profile

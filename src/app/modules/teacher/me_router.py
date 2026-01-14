@@ -81,3 +81,19 @@ def patch_my_profile(
     return TeacherProfileResponse(
         profile=TeacherProfilePublic.model_validate(profile)  
     )
+
+
+@router.post(
+    "/me/profile/submit",
+    response_model=TeacherProfileResponse,
+    operation_id="teacher_submit_my_profile",
+)
+def submit_my_profile(
+    user: User = Depends(require_teacher),
+    db: Session = Depends(get_db),
+) -> TeacherProfileResponse:
+    profile = TeacherService().submit_my_profile(db, user_id=user.id)
+
+    return TeacherProfileResponse(
+        profile=TeacherProfilePublic.model_validate(profile)
+    )
