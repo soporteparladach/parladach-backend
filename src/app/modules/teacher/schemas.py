@@ -1,10 +1,8 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 from typing import List, Optional
-
-from pydantic import BaseModel, Field
-
 from app.core.enums import TeacherProfileStatus
+
 
 class TeacherBase(BaseModel):
     user_id: int
@@ -26,6 +24,8 @@ class TeacherProfileCreate(BaseModel):
 
 
 class TeacherProfilePublic(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     user_id: int
     bio: str
@@ -38,3 +38,9 @@ class TeacherProfilePublic(BaseModel):
 
 class TeacherProfileResponse(BaseModel):
     profile: TeacherProfilePublic
+
+
+class TeacherProfileUpdate(BaseModel):
+    bio: Optional[str] = Field(default=None, max_length=2000)
+    languages: Optional[List[str]] = None
+    photo_url: Optional[str] = Field(default=None, max_length=2048)

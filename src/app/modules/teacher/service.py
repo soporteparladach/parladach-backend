@@ -5,9 +5,12 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
 from app.models.user import User
-from app.core.enums import UserRole
-from app.core.enums import TeacherProfileStatus
+from app.core.enums import UserRole, TeacherProfileStatus
 from app.modules.teacher.models import TeacherProfile
+from app.modules.teacher.schemas import TeacherProfileUpdate
+
+
+KEY_FIELDS = {"bio", "languages", "photo_url"}
 
 
 class TeacherService:
@@ -44,6 +47,40 @@ class TeacherService:
             photo_url=photo_url,
             status=TeacherProfileStatus.DRAFT,
         )
+
+        db.add(profile)
+        db.commit()
+        db.refresh(profile)
+        return profile
+
+
+    def update_my_profile(self, db: Session, *, user_id: int, payload: TeacherProfileUpdate) -> TeacherProfile:
+        profile = db.execute(
+            select(TeacherProfile).where(TeacherProfile.user_id == user_id)
+        ).scalar_one_or_none()
+
+        if not profile:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Perfil docente no existe")
+
+        # Reglas por estado
+        if profile.status == TeacherProfileStatus.IN_REVIEW:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="El perfil está en revisión y no se puede editar",
+            )
+
+        data = payload.model_dump(exclude_unset=True)
+
+        # Determinar si cambian campos clave
+        key_changed = any(k in data for k in KEY_FIELDS)
+
+        # Aplicar cambios
+        for k, v in data.items():
+            setattr(profile, k, v)
+
+        # Si estaba APPROVED y cambia algo clave => IN_REVIEW
+        if profile.status == TeacherProfileStatus.APPROVED and key_changed:
+            profile.status = TeacherProfileStatus.IN_REVIEW
 
         db.add(profile)
         db.commit()

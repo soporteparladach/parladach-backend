@@ -10,8 +10,10 @@ from app.modules.teacher.schemas import (
     TeacherProfileCreate,
     TeacherProfilePublic,
     TeacherProfileResponse,
+    TeacherProfileUpdate,
 )
 from app.modules.teacher.service import TeacherService
+
 
 router = APIRouter(prefix="/teacher", tags=["teacher-me"])
 
@@ -66,4 +68,16 @@ def create_my_profile(
             created_at=profile.created_at,
             updated_at=profile.updated_at,
         )
+    )
+
+
+@router.patch("/me/profile", response_model=TeacherProfileResponse, operation_id="teacher_me_profile_patch")
+def patch_my_profile(
+    payload: TeacherProfileUpdate,
+    user: User = Depends(require_teacher),
+    db: Session = Depends(get_db),
+):
+    profile = TeacherService().update_my_profile(db, user_id=user.id, payload=payload)
+    return TeacherProfileResponse(
+        profile=TeacherProfilePublic.model_validate(profile)  
     )
