@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
@@ -8,6 +8,7 @@ from app.models.user import User
 from app.core.enums import UserRole, TeacherProfileStatus
 from app.modules.teacher.models import TeacherProfile
 from app.modules.teacher.schemas import TeacherProfileUpdate
+from app.modules.teacher.schemas import TeacherProfilePublic
 
 
 KEY_FIELDS = {"bio", "languages", "photo_url"}
@@ -116,3 +117,34 @@ class TeacherService:
         db.commit()
         db.refresh(profile)
         return profile
+    
+
+    def admin_list_profiles(
+        self,
+        db: Session,
+        *,
+        status: str | None,
+        limit: int,
+        offset: int,
+    ) -> tuple[list[TeacherProfilePublic], int]:
+        q = select(TeacherProfile)
+        cq = select(func.count()).select_from(TeacherProfile)
+
+        if status:
+            # Validar/normalizar status contra enum
+            try:
+                enum_status = TeacherProfileStatus(status)
+            except ValueError:
+                # si prefieres 400, cámbialo a HTTPException(400,...)
+                enum_status = None
+
+            if enum_status:
+                q = q.where(TeacherProfile.status == enum_status)
+                cq = cq.where(TeacherProfile.status == enum_status)
+
+        total = db.execute(cq).scalar_one()
+        rows = db.execute(q.order_by(TeacherProfile.id).limit(limit).offset(offset)).scalars().all()
+
+        # Convertir a esquema público
+        items = [TeacherProfilePublic.model_validate(p) for p in rows]
+        return items, total

@@ -44,3 +44,10 @@ class TeacherProfileUpdate(BaseModel):
     bio: Optional[str] = Field(default=None, max_length=2000)
     languages: Optional[List[str]] = None
     photo_url: Optional[str] = Field(default=None, max_length=2048)
+
+
+class TeacherProfileListResponse(BaseModel):
+    items: List[TeacherProfilePublic]
+    total: int
+    limit: int
+    offset: int

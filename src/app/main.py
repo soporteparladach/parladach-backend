@@ -19,6 +19,7 @@ from app.modules.teacher.router import router as teacher_router
 from app.modules.teacher.admin_router import router as teacher_admin_router
 from app.modules.teacher.me_router import router as teacher_me_router
 
+
 def create_app() -> FastAPI:
     configure_logging(settings.app_env)
 
