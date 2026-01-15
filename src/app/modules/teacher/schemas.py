@@ -36,8 +36,12 @@ class TeacherProfilePublic(BaseModel):
     updated_at: datetime
 
 
-class TeacherProfileResponse(BaseModel):
+class TeacherProfileResponse(BaseModel):   
     profile: TeacherProfilePublic
+
+    @classmethod
+    def from_orm_profile(cls, profile) -> "TeacherProfileResponse":
+        return cls(profile=TeacherProfilePublic.model_validate(profile))
 
 
 class TeacherProfileUpdate(BaseModel):

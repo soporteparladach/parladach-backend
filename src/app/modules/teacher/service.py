@@ -148,3 +148,40 @@ class TeacherService:
         # Convertir a esquema público
         items = [TeacherProfilePublic.model_validate(p) for p in rows]
         return items, total
+    
+
+    def admin_set_status(self, db: Session, *, profile_id: int, action: str) -> TeacherProfile:
+        profile = db.execute(
+            select(TeacherProfile).where(TeacherProfile.id == profile_id)
+        ).scalar_one_or_none()
+
+        if not profile:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Perfil docente no existe")
+
+        current = profile.status
+
+        if action == "approve":
+            # IN_REVIEW -> APPROVED, PAUSED -> APPROVED
+            if current not in {TeacherProfileStatus.IN_REVIEW, TeacherProfileStatus.PAUSED}:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Transición inválida: {current} -> APPROVED",
+                )
+            profile.status = TeacherProfileStatus.APPROVED
+
+        elif action == "pause":
+            # APPROVED -> PAUSED
+            if current != TeacherProfileStatus.APPROVED:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail=f"Transición inválida: {current} -> PAUSED",
+                )
+            profile.status = TeacherProfileStatus.PAUSED
+
+        else:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Acción inválida")
+
+        db.add(profile)
+        db.commit()
+        db.refresh(profile)
+        return profile

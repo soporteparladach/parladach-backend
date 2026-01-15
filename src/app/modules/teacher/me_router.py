@@ -78,9 +78,7 @@ def patch_my_profile(
     db: Session = Depends(get_db),
 ):
     profile = TeacherService().update_my_profile(db, user_id=user.id, payload=payload)
-    return TeacherProfileResponse(
-        profile=TeacherProfilePublic.model_validate(profile)  
-    )
+    return TeacherProfileResponse.from_orm_profile(profile)
 
 
 @router.post(
@@ -94,6 +92,4 @@ def submit_my_profile(
 ) -> TeacherProfileResponse:
     profile = TeacherService().submit_my_profile(db, user_id=user.id)
 
-    return TeacherProfileResponse(
-        profile=TeacherProfilePublic.model_validate(profile)
-    )
+    return TeacherProfileResponse.from_orm_profile(profile)
