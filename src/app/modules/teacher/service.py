@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from sqlalchemy import select, func
+from sqlalchemy import select, func, desc
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
@@ -185,3 +185,20 @@ class TeacherService:
         db.commit()
         db.refresh(profile)
         return profile
+    
+
+    def list_public_approved_profiles(
+        self,
+        db: Session,
+        *,
+        limit: int = 50,
+        offset: int = 0,
+    ) -> list[TeacherProfile]:
+        stmt = (
+            select(TeacherProfile)
+            .where(TeacherProfile.status == TeacherProfileStatus.APPROVED)
+            .order_by(desc(TeacherProfile.created_at), desc(TeacherProfile.id))
+            .limit(limit)
+            .offset(offset)
+        )
+        return list(db.execute(stmt).scalars().all())

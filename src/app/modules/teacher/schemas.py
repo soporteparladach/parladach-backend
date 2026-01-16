@@ -55,3 +55,15 @@ class TeacherProfileListResponse(BaseModel):
     total: int
     limit: int
     offset: int
+
+
+class PublicTeacherItem(BaseModel):
+    teacher_profile_id: int
+    bio: str
+    languages: list[str]
+    photo_url: Optional[str] = None
+    display_name: Optional[str] = None  
+
+
+class PublicTeachersResponse(BaseModel):
+    items: list[PublicTeacherItem]

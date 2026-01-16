@@ -18,6 +18,7 @@ from app.modules.dashboard.router import router as dashboard_router
 from app.modules.teacher.router import router as teacher_router
 from app.modules.teacher.admin_router import router as teacher_admin_router
 from app.modules.teacher.me_router import router as teacher_me_router
+from app.modules.teacher.public_router import router as public_teachers_router
 
 
 def create_app() -> FastAPI:
@@ -40,6 +41,7 @@ def create_app() -> FastAPI:
     app.include_router(teacher_router)
     app.include_router(teacher_admin_router)
     app.include_router(teacher_me_router)
+    app.include_router(public_teachers_router)
 
     return app
 
